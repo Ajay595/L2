@@ -33,7 +33,8 @@ Save Robot Screenshot
 
 Save Receipt PDF
     [Arguments]    ${filename}
-    Html To Pdf    receipt    ${OUTPUT_DIR}${/}RECEIPTS${/}${filename}.pdf
+    ${html_element}=    Get Element Attribute    id:receipt    innerHTML 
+    Html To Pdf    ${html_element}    ${OUTPUT_DIR}${/}RECEIPTS${/}${filename}.pdf
     [Return]    ${OUTPUT_DIR}${/}RECEIPTS${/}${filename}.pdf
 
 Open Robot_Order website
@@ -73,7 +74,7 @@ Fill order your robot form
         Wait Until Keyword Succeeds    5x    3 s    Check for submission error
         ${Screenshot}=    Save Robot Screenshot    ${row}[Order number]
         ${receipt}=    Save Receipt PDF    ${row}[Order number]
-        ${Files}=    Create List    ${Screenshot}
+        ${Files}=    Create List    ${Screenshot}:format=A4,align=center
         Embed screenshot of robot into receipt Pdf    ${Files}    ${receipt}
         Click Button    order-another
         Close Browser pop-up
@@ -90,10 +91,10 @@ Clear output files
 Order robots from RobotSpareBin Industries Inc
     Initialization
     ${Secret}=    Get Secret    L2_Training
-    ${URL}=    Dialog to read input file URL
-    Open Robot_Order website    ${URL}
+    ${FileURL}=    Dialog to read input file URL
+    Open Robot_Order website    ${Secret}[WebsiteUrl]
     Close Browser pop-up
-    Download Orders CSV File    ${Secret}[InputFileLink]
+    Download Orders CSV File    ${FileURL}
     ${InputDT}=    Read CSV File into Datatable
     Fill order your robot form    ${InputDT}
     Create output ZIP file
